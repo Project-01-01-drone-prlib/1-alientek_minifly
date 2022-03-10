@@ -38,7 +38,7 @@ void startTask(void *arg)
     xTaskCreate(usblinkTxTask, "USBLINK_TX", 150, NULL, 3, NULL);		/*创建usb发送任务*/
 
     xTaskCreate(atkpTxTask, "ATKP_TX", 150, NULL, 3, NULL);				/*创建atkp发送任务任务*/
-    xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL);		/*创建atkp解析任务*/
+    xTaskCreate(atkpRxAnlTask, "ATKP_RX_ANL", 300, NULL, 6, NULL);		/*创建atkp解析任务*/ 
 
     xTaskCreate(configParamTask, "CONFIG_TASK", 150, NULL, 1, NULL);	/*创建参数配置任务*/
 
@@ -48,7 +48,7 @@ void startTask(void *arg)
 
     xTaskCreate(stabilizerTask, "STABILIZER", 450, NULL, 5, NULL);		/*创建姿态任务*/
 
-    xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
+    //xTaskCreate(expModuleMgtTask, "EXP_MODULE", 150, NULL, 1, NULL);	/*创建扩展模块管理任务*/
 
     printf("Free heap: %d bytes\n", xPortGetFreeHeapSize());			/*打印剩余堆栈大小*/
 
@@ -72,6 +72,9 @@ void vApplicationIdleHook( void )
     __WFI();	/*进入低功耗模式*/
 }
 
+
+// C ->遥控器消息队列(一帧数据)->atkp队列（解析数据）——>rcdata(全局静态变量)——>atkpSendPeriod发送数据
+// 遥控器接收任务通过等待消息队列，等待串口2空闲中断里面发过来的字节，最后组成一包数据，发送到atkpRxAnlTask中的消息队列
 
 
 
