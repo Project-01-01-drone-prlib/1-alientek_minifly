@@ -80,22 +80,22 @@ static void ctrlDataUpdate(void)
 	{
 		isRCLocked = false;			/*解锁*/
 		nowCache = &remoteCache;	/* 遥控缓存数据 */
-	}else 
-	if ((tickNow - wifiCache.timestamp) < COMMANDER_WDT_TIMEOUT_STABILIZE) 
+	}
+	else if ((tickNow - wifiCache.timestamp) < COMMANDER_WDT_TIMEOUT_STABILIZE) 
 	{
 		isRCLocked = false;			/*解锁*/
 		nowCache = &wifiCache;		/* wifi缓存数据 */
-	}else 
-	if ((tickNow - remoteCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
+	}
+	else if ((tickNow - remoteCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
 	{
 		nowCache = &remoteCache;	/* 遥控缓存数据 */
 		commanderLevelRPY();
-	}else 
-	if ((tickNow - wifiCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
+	}else if ((tickNow - wifiCache.timestamp) < COMMANDER_WDT_TIMEOUT_SHUTDOWN) 
 	{
 		nowCache = &wifiCache;		/* wifi缓存数据 */
 		commanderLevelRPY();
-	} else 
+	} 
+	else 
 	{
 		isRCLocked = true;			/*锁定*/
 		nowCache = &remoteCache;
