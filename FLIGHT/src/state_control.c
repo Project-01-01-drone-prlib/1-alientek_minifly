@@ -19,8 +19,8 @@
 ********************************************************************************/
 
 static float actualThrust;
-static attitude_t attitudeDesired;
-static attitude_t rateDesired;
+static attitude_t attitudeDesired; //期望的姿态角度
+static attitude_t rateDesired; //期望的速度
 
 
 void stateControlInit(void)
@@ -40,13 +40,14 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 {
 	static u16 cnt = 0;
 	
-	if (RATE_DO_EXECUTE(POSITION_PID_RATE, tick))
-	{
-		if (setpoint->mode.x != modeDisable || setpoint->mode.y != modeDisable || setpoint->mode.z != modeDisable)
-		{
-			positionController(&actualThrust, &attitudeDesired, setpoint, state, POSITION_PID_DT);
-		}
-	}
+	//mode.x是disable的
+	// if (RATE_DO_EXECUTE(POSITION_PID_RATE, tick))
+	// {
+	// 	if (setpoint->mode.x != modeDisable || setpoint->mode.y != modeDisable || setpoint->mode.z != modeDisable)
+	// 	{
+	// 		positionController(&actualThrust, &attitudeDesired, setpoint, state, POSITION_PID_DT);
+	// 	}
+	// }
 	
 	//角度环（外环）
 	if (RATE_DO_EXECUTE(ANGEL_PID_RATE, tick))
@@ -73,7 +74,7 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 		attitudeDesired.roll += configParam.trimR;	//叠加微调值
 		attitudeDesired.pitch += configParam.trimP;		
 		
-		attitudeAnglePID(&state->attitude, &attitudeDesired, &rateDesired);
+		attitudeAnglePID(&state->attitude, &attitudeDesired, &rateDesired);//根据实际的角度和期望的角度 输出期望的叫角速度
 	}
 	
 	//角速度环（内环）
@@ -96,7 +97,7 @@ void stateControl(control_t *control, sensorData_t *sensors, state_t *state, set
 			rateDesired.roll = setpoint->attitude.roll;
 		}
 		
-		attitudeRatePID(&sensors->gyro, &rateDesired, control);
+		attitudeRatePID(&sensors->gyro, &rateDesired, control);// 通过实际的角速度和期望的角速度来输出 控制量
 	}
 
 	control->thrust = actualThrust;	

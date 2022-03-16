@@ -24,6 +24,7 @@
 
 float Kp = 0.4f;		/*比例增益*/
 float Ki = 0.001f;		/*积分增益*/
+
 float exInt = 0.0f;
 float eyInt = 0.0f;
 float ezInt = 0.0f;		/*积分误差累计*/

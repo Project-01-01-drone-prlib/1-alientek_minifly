@@ -32,6 +32,7 @@
 PidObject pidAngleRoll;
 PidObject pidAnglePitch;
 PidObject pidAngleYaw;
+
 PidObject pidRateRoll;
 PidObject pidRatePitch;
 PidObject pidRateYaw;

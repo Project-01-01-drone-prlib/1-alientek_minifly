@@ -238,142 +238,142 @@ void commanderGetSetpoint(setpoint_t *setpoint, state_t *state)
 	
 	state->isRCLocked = isRCLocked;	/*更新遥控器锁定状态*/
 	
-	if(commander.ctrlMode & 0x01)/*定高模式*/
-	{
-		if(commander.keyLand)/*一键降落*/
-		{
-			flyerAutoLand(setpoint, state);
-		}
-		else if(commander.keyFlight)/*一键起飞*/ 
-		{	
-			setpoint->thrust = 0;
-			setpoint->mode.z = modeAbs;		
+	// if(commander.ctrlMode & 0x01)/*定高模式*/
+	// {
+	// 	if(commander.keyLand)/*一键降落*/
+	// 	{
+	// 		flyerAutoLand(setpoint, state);
+	// 	}
+	// 	else if(commander.keyFlight)/*一键起飞*/ 
+	// 	{	
+	// 		setpoint->thrust = 0;
+	// 		setpoint->mode.z = modeAbs;		
 			
-			if (initHigh == false)
-			{
-				initHigh = true;	
-				isAdjustingPosXY = true;
-				errorPosX = 0.f;
-				errorPosY = 0.f;
-				errorPosZ = 0.f;
+	// 		if (initHigh == false)
+	// 		{
+	// 			initHigh = true;	
+	// 			isAdjustingPosXY = true;
+	// 			errorPosX = 0.f;
+	// 			errorPosY = 0.f;
+	// 			errorPosZ = 0.f;
 
-				setFastAdjustPosParam(0, 1, 80.f);	/*一键起飞高度80cm*/															
-			}		
+	// 			setFastAdjustPosParam(0, 1, 80.f);	/*一键起飞高度80cm*/															
+	// 		}		
 				
-			float climb = ((ctrlValLpf.thrust - 32767.f) / 32767.f);
-			if(climb > 0.f) 
-				climb *= MAX_CLIMB_UP;
-			else
-				climb *= MAX_CLIMB_DOWN;
+	// 		float climb = ((ctrlValLpf.thrust - 32767.f) / 32767.f);
+	// 		if(climb > 0.f) 
+	// 			climb *= MAX_CLIMB_UP;
+	// 		else
+	// 			climb *= MAX_CLIMB_DOWN;
 			
-			if (fabsf(climb) > 5.f)
-			{
-				isAdjustingPosZ = true;												
-				setpoint->mode.z = modeVelocity;
-				setpoint->velocity.z = climb;
+	// 		if (fabsf(climb) > 5.f)
+	// 		{
+	// 			isAdjustingPosZ = true;												
+	// 			setpoint->mode.z = modeVelocity;
+	// 			setpoint->velocity.z = climb;
 
-				if(climb < -(CLIMB_RATE/5.f))	/*油门下拉过大*/
-				{
-					if(isExitFlip == true)		/*退出空翻，再检测加速度*/
-					{
-						if(maxAccZ < state->acc.z)
-							maxAccZ = state->acc.z;
-						if(maxAccZ > 250.f)		/*油门下拉过大，飞机触地停机*/
-						{
-							commander.keyFlight = false;
-							estRstAll();	/*复位估测*/
-						}
-					}
-				}else
-				{
-					maxAccZ = 0.f;
-				}
-			}
-			else if (isAdjustingPosZ == true)
-			{
-				isAdjustingPosZ = false;
+	// 			if(climb < -(CLIMB_RATE/5.f))	/*油门下拉过大*/
+	// 			{
+	// 				if(isExitFlip == true)		/*退出空翻，再检测加速度*/
+	// 				{
+	// 					if(maxAccZ < state->acc.z)
+	// 						maxAccZ = state->acc.z;
+	// 					if(maxAccZ > 250.f)		/*油门下拉过大，飞机触地停机*/
+	// 					{
+	// 						commander.keyFlight = false;
+	// 						estRstAll();	/*复位估测*/
+	// 					}
+	// 				}
+	// 			}else
+	// 			{
+	// 				maxAccZ = 0.f;
+	// 			}
+	// 		}
+	// 		else if (isAdjustingPosZ == true)
+	// 		{
+	// 			isAdjustingPosZ = false;
 			
-				setpoint->mode.z = modeAbs;
-				setpoint->position.z = state->position.z + errorPosZ;	/*调整新位置*/									
-			}
-			else if(isAdjustingPosZ == false)	/*Z位移误差*/
-			{
-				errorPosZ = setpoint->position.z - state->position.z;
-				errorPosZ = constrainf(errorPosZ, -10.f, 10.f);	/*误差限幅 单位cm*/
-			}			
-		}
-		else/*着陆状态*/
-		{
-			setpoint->mode.z = modeDisable;
-			setpoint->thrust = 0;
-			setpoint->velocity.z = 0;
-			setpoint->position.z = 0;
-			initHigh = false;
-			isAdjustingPosZ = false;
-		}
-	}
-	else /*手动飞模式*/
-	{
+	// 			setpoint->mode.z = modeAbs;
+	// 			setpoint->position.z = state->position.z + errorPosZ;	/*调整新位置*/									
+	// 		}
+	// 		else if(isAdjustingPosZ == false)	/*Z位移误差*/
+	// 		{
+	// 			errorPosZ = setpoint->position.z - state->position.z;
+	// 			errorPosZ = constrainf(errorPosZ, -10.f, 10.f);	/*误差限幅 单位cm*/
+	// 		}			
+	// 	}
+	// 	else/*着陆状态*/
+	// 	{
+	// 		setpoint->mode.z = modeDisable;
+	// 		setpoint->thrust = 0;
+	// 		setpoint->velocity.z = 0;
+	// 		setpoint->position.z = 0;
+	// 		initHigh = false;
+	// 		isAdjustingPosZ = false;
+	// 	}
+	// }
+	// else /*手动飞模式*/
+	// {
 		setpoint->mode.z = modeDisable;
 		setpoint->thrust = ctrlValLpf.thrust;
-	}	
+	//}	
  	
 	setpoint->attitude.roll = ctrlValLpf.roll;
 	setpoint->attitude.pitch = ctrlValLpf.pitch;
 	setpoint->attitude.yaw  = -ctrlValLpf.yaw;	/*摇杆方向和yaw方向相反*/
 	
-	if(getOpDataState() && commander.ctrlMode == 0x03)	/*光流数据可用，定点模式*/ 
-	{
-		setpoint->attitude.yaw *= 0.5f;	/*定点模式减慢yaw调节*/
+	// if(getOpDataState() && commander.ctrlMode == 0x03)	/*光流数据可用，定点模式*/ 
+	// {
+	// 	setpoint->attitude.yaw *= 0.5f;	/*定点模式减慢yaw调节*/
 		
-		/*调整位置 速度模式*/
-		if(fabsf(setpoint->attitude.roll) > 1.5f || fabsf(setpoint->attitude.pitch) > 1.5f)
-		{
-			adjustPosXYTime = 0;
-			isAdjustingPosXY = true;
-			setpoint->mode.x = modeVelocity;
-			setpoint->mode.y = modeVelocity;
-			setpoint->velocity.x = setpoint->attitude.pitch * 4.0f;
-			setpoint->velocity.y = setpoint->attitude.roll * 4.0f;	
-		}
-		else if(isAdjustingPosXY == true)
-		{
-			if(adjustPosXYTime++ > 100)
-			{
-				adjustPosXYTime = 0;
-				isAdjustingPosXY = false;
-			}		
-			setpoint->mode.x = modeAbs;
-			setpoint->mode.y = modeAbs;
-			setpoint->position.x = state->position.x + errorPosX;	//调整新位置
-			setpoint->position.y = state->position.y + errorPosY;	//调整新位置
-		}
-		else if(isAdjustingPosXY == false)	/*位移误差*/
-		{	
-			errorPosX = setpoint->position.x - state->position.x;
-			errorPosY = setpoint->position.y - state->position.y;
-			errorPosX = constrainf(errorPosX, -30.0f, 30.0f);	/*误差限幅 单位cm*/
-			errorPosY = constrainf(errorPosY, -30.0f, 30.0f);	/*误差限幅 单位cm*/
-		}
-	}
-	else	/*手动模式*/
-	{
+	// 	/*调整位置 速度模式*/
+	// 	if(fabsf(setpoint->attitude.roll) > 1.5f || fabsf(setpoint->attitude.pitch) > 1.5f)
+	// 	{
+	// 		adjustPosXYTime = 0;
+	// 		isAdjustingPosXY = true;
+	// 		setpoint->mode.x = modeVelocity;
+	// 		setpoint->mode.y = modeVelocity;
+	// 		setpoint->velocity.x = setpoint->attitude.pitch * 4.0f;
+	// 		setpoint->velocity.y = setpoint->attitude.roll * 4.0f;	
+	// 	}
+	// 	else if(isAdjustingPosXY == true)
+	// 	{
+	// 		if(adjustPosXYTime++ > 100)
+	// 		{
+	// 			adjustPosXYTime = 0;
+	// 			isAdjustingPosXY = false;
+	// 		}		
+	// 		setpoint->mode.x = modeAbs;
+	// 		setpoint->mode.y = modeAbs;
+	// 		setpoint->position.x = state->position.x + errorPosX;	//调整新位置
+	// 		setpoint->position.y = state->position.y + errorPosY;	//调整新位置
+	// 	}
+	// 	else if(isAdjustingPosXY == false)	/*位移误差*/
+	// 	{	
+	// 		errorPosX = setpoint->position.x - state->position.x;
+	// 		errorPosY = setpoint->position.y - state->position.y;
+	// 		errorPosX = constrainf(errorPosX, -30.0f, 30.0f);	/*误差限幅 单位cm*/
+	// 		errorPosY = constrainf(errorPosY, -30.0f, 30.0f);	/*误差限幅 单位cm*/
+	// 	}
+	// }
+	// else	/*手动模式*/
+	// {
 		setpoint->mode.x = modeDisable;
 		setpoint->mode.y = modeDisable;		
-	}
+	// }
 	
 	setpoint->mode.roll = modeDisable;	
 	setpoint->mode.pitch = modeDisable;	
 	
-	if(commander.flightMode)/*无头模式*/
-	{
-		yawMode = CAREFREE;		
-		rotateYawCarefree(setpoint, state);
-	}		
-	else	/*X飞行模式*/
-	{
-		yawMode = XMODE;
-	}		
+	// if(commander.flightMode)/*无头模式*/
+	// {
+		// yawMode = CAREFREE;		
+		// rotateYawCarefree(setpoint, state);
+	// }		
+	// else	/*X飞行模式*/
+	// {
+	 	yawMode = XMODE; //这是有头模式 
+	// }		
 }
 
 /* 读取并更新微调值 */

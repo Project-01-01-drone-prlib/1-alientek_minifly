@@ -90,29 +90,29 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 
 	float relateHight = sensorData->baro.asl - startBaroAsl;	/*气压相对高度*/
 	
-	if(getModuleID()==OPTICAL_FLOW && isEnableVl53lxx==true)	/*光流模块可用,且使用激光*/
-	{
-		vl53lxxReadRange(&sensorData->zrange);	/*读取激光数据*/
+// 	if(getModuleID()==OPTICAL_FLOW && isEnableVl53lxx==true)	/*光流模块可用,且使用激光*/
+// 	{
+// 		vl53lxxReadRange(&sensorData->zrange);	/*读取激光数据*/
 	
-//		rangeLpf = sensorData->zrange.distance;
-		rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f;	/*低通 单位cm*/		
+// //		rangeLpf = sensorData->zrange.distance;
+// 		rangeLpf += (sensorData->zrange.distance - rangeLpf) * 0.1f;	/*低通 单位cm*/		
 			
-		float quality = sensorData->zrange.quality;
+// 		float quality = sensorData->zrange.quality;
 
-		if(quality < 0.3f)	/*低于这个可行度，激光数据不可用*/
-		{
-			quality = 0.f;
-		}else
-		{
-			weight = quality;
-			startBaroAsl = sensorData->baro.asl - rangeLpf;
-		}
-		fusedHeight = rangeLpf * quality + (1.0f - quality) * relateHight;/*融合高度*/	
-	}
-	else	/*无光流模块*/
-	{
+// 		if(quality < 0.3f)	/*低于这个可行度，激光数据不可用*/
+// 		{
+// 			quality = 0.f;
+// 		}else
+// 		{
+// 			weight = quality;
+// 			startBaroAsl = sensorData->baro.asl - rangeLpf;
+// 		}
+// 		fusedHeight = rangeLpf * quality + (1.0f - quality) * relateHight;/*融合高度*/	
+// 	}
+// 	else	/*无光流模块*/
+// 	{
 		fusedHeight = relateHight;	/*融合高度*/
-	}
+	// }
 	fusedHeightLpf += (fusedHeight - fusedHeightLpf) * 0.1f;	/*融合高度 低通*/
 	
 	if(isRstHeight)
@@ -195,30 +195,30 @@ void positionEstimate(sensorData_t* sensorData, state_t* state, float dt)
 	/* 位置校正: Z-axis */
 	inavFilterCorrectPos(Z, dt, errPosZ, weight);	
 
-	if(getModuleID() == OPTICAL_FLOW)	/*光流模块可用*/
-	{		
-		float opflowDt = dt;
+	// if(getModuleID() == OPTICAL_FLOW)	/*光流模块可用*/
+	// {		
+	// 	float opflowDt = dt;
 		
-		float opResidualX = opFlow.posSum[X] - estimator.pos[X];
-		float opResidualY = opFlow.posSum[Y] - estimator.pos[Y];
-		float opResidualXVel = opFlow.velLpf[X] - estimator.vel[X];
-		float opResidualYVel = opFlow.velLpf[Y] - estimator.vel[Y];
+	// 	float opResidualX = opFlow.posSum[X] - estimator.pos[X];
+	// 	float opResidualY = opFlow.posSum[Y] - estimator.pos[Y];
+	// 	float opResidualXVel = opFlow.velLpf[X] - estimator.vel[X];
+	// 	float opResidualYVel = opFlow.velLpf[Y] - estimator.vel[Y];
 		
-		float opWeightScaler = 1.0f;
+	// 	float opWeightScaler = 1.0f;
 		
-		float wXYPos = wOpflowP * opWeightScaler;
-		float wXYVel = wOpflowV * sq(opWeightScaler);
+	// 	float wXYPos = wOpflowP * opWeightScaler;
+	// 	float wXYVel = wOpflowV * sq(opWeightScaler);
 		
-		/* 位置预估: XY-axis */
-		inavFilterPredict(X, opflowDt, estimator.acc[X]);
-		inavFilterPredict(Y, opflowDt, estimator.acc[Y]);
-		/* 位置校正: XY-axis */
-		inavFilterCorrectPos(X, opflowDt, opResidualX, wXYPos);
-		inavFilterCorrectPos(Y, opflowDt, opResidualY, wXYPos);
-		/* 速度校正: XY-axis */
-		inavFilterCorrectVel(X, opflowDt, opResidualXVel, wXYVel);
-		inavFilterCorrectVel(Y, opflowDt, opResidualYVel, wXYVel);
-	}
+	// 	/* 位置预估: XY-axis */
+	// 	inavFilterPredict(X, opflowDt, estimator.acc[X]);
+	// 	inavFilterPredict(Y, opflowDt, estimator.acc[Y]);
+	// 	/* 位置校正: XY-axis */
+	// 	inavFilterCorrectPos(X, opflowDt, opResidualX, wXYPos);
+	// 	inavFilterCorrectPos(Y, opflowDt, opResidualY, wXYPos);
+	// 	/* 速度校正: XY-axis */
+	// 	inavFilterCorrectVel(X, opflowDt, opResidualXVel, wXYVel);
+	// 	inavFilterCorrectVel(Y, opflowDt, opResidualYVel, wXYVel);
+	// }
 	
 	/*加速度偏置校正*/
 	Axis3f accelBiasCorr = {{ 0, 0, 0}};

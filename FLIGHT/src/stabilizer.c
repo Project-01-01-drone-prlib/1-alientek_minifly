@@ -162,17 +162,17 @@ void stabilizerTask(void* param)
 			fastAdjustPosZ();	/*快速调整高度*/
 		}		
 		
-		/*读取光流数据(100Hz)*/
-		if (RATE_DO_EXECUTE(RATE_100_HZ, tick))
-		{
-			getOpFlowData(&state, 0.01f);	
-		}
+		// /*读取光流数据(100Hz)*/
+		// if (RATE_DO_EXECUTE(RATE_100_HZ, tick))
+		// {
+		// 	getOpFlowData(&state, 0.01f);	
+		// }
 		
-		/*翻滚检测(500Hz) 非定点模式*/
-		if (RATE_DO_EXECUTE(RATE_500_HZ, tick) && (getCommanderCtrlMode() != 0x03))
-		{
-			flyerFlipCheck(&setpoint, &control, &state);	
-		}
+		// /*翻滚检测(500Hz) 非定点模式*/
+		// if (RATE_DO_EXECUTE(RATE_500_HZ, tick) && (getCommanderCtrlMode() != 0x03))
+		// {
+		// 	flyerFlipCheck(&setpoint, &control, &state);	
+		// }
 		
 		/*异常检测*/
 		anomalDetec(&sensorData, &state, &control);			
